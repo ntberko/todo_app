@@ -2,6 +2,12 @@
 //Will store all todos
 let todoItems = [];
 
+function rendererTodoList() {
+    for (let todo of todoItems){
+        renderTodo(todo);
+    }
+}
+
 // This function gets to-do object and rendering the page.
 //
 // @param todo - Todo object
@@ -9,9 +15,15 @@ function renderTodo(todo) {
 
     const list = document.querySelector('.js-todo-list');
     const binlist = document.querySelector('.js-bin-list');
-    const item = document.querySelector(`[data-key='${todo.id}']`);
+    let item = document.querySelector(`[id='${todo.id}']`);
 
     if (todo.deleted) {
+        if(!item){
+            item = document.createElement("li");
+            item.setAttribute('id', todo.id);
+            item.setAttribute('data-key', todo.id);
+
+        }
         binlist.append(item);
         item.innerHTML = `
             <input id="${todo.id}" type="checkbox"/>
@@ -29,6 +41,7 @@ function renderTodo(todo) {
     const node = document.createElement("li");
     node.setAttribute('class', `todo-item ${isChecked}`);
     node.setAttribute('data-key', todo.id);
+    node.setAttribute('id', todo.id);
     node.innerHTML = `
     <input id="${todo.id}" type="checkbox"/>
     <label for="${todo.id}" class="tick js-tick"></label>
@@ -44,6 +57,7 @@ function renderTodo(todo) {
         delete todo.restore;
         list.append(node);
         updatebin();
+        setCookie();
         return
     }
 
@@ -62,15 +76,33 @@ function addTodo(text) {
         id: Date.now(),
         deleted: false
     };
-
     todoItems.push(todo);
+    setCookie();
     renderTodo(todo);
+    console.log("addTodo",getCookie());
+}
+
+
+function setCookie() {
+    console.log("setCookie", todoItems);
+    document.cookie = JSON.stringify(todoItems);
+}
+
+function getCookie() {
+    let decodedCookie = decodeURIComponent(document.cookie);
+    if (!document.cookie || document.cookie.length == 0){
+        return;
+    }
+    console.log("getCookie", decodedCookie);
+    todoItems = JSON.parse(decodedCookie);
+    return todoItems;
 }
 
 function toggleDone(key) {
     const index = todoItems.findIndex(item => item.id === Number(key));
 
     todoItems[index].checked = !todoItems[index].checked;
+    setCookie();
     renderTodo(todoItems[index]);
 }
 
@@ -79,17 +111,18 @@ function deleteTodo(key) {
     const index = todoItems.findIndex(item => item.id === Number(key));
 
     todoItems[index].deleted = true;
+    setCookie();
     renderTodo(todoItems[index]);
-    console.log(todoItems);
 }
 
 // This function gets to-do id, changes its deleted value to false and restore to true,
 // and rendering the new list.
 function restoreTodo(key) {
     const index = todoItems.findIndex(item => item.id === Number(key));
-
     todoItems[index].deleted = false;
+    setCookie();
     todoItems[index].restore = true;
+    console.log(todoItems[index]);
     renderTodo(todoItems[index]);
 }
 
@@ -98,7 +131,7 @@ function editTodo(key) {
     const index = todoItems.findIndex(item => item.id === Number(key));
     const editspan = document.querySelector("#span" + key);
     editspan.innerHTML = `
-    <form class="edit-form" onsubmit="myFunction(${index})" >
+    <form class="edit-form" onsubmit="updateTodo(${index})" >
       <input class="edit-input" autofocus type="text" placeholder="${todoItems[index].text}">
     </form>    `;
 }
@@ -111,12 +144,13 @@ function updatebin() {
     binlist.innerText = bincount;
 }
 
-function myFunction(index) {
+function updateTodo(index) {
     event.preventDefault();
     const input = document.querySelector('.edit-input');
     const text = input.value.trim();
     if (text !== '') {
         todoItems[index].text = text;
+        setCookie();
         renderTodo(todoItems[index]);
     }
 }
@@ -147,4 +181,10 @@ list.addEventListener('click', event => {
         const itemKey = event.target.parentElement.dataset.key;
         deleteTodo(itemKey);
     }
+});
+
+
+window.addEventListener('load', (event) => {
+    getCookie()
+    rendererTodoList();
 });
