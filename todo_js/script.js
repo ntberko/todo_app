@@ -2,6 +2,9 @@
 //Will store all todos
 let todoItems = [];
 
+// This function gets to-do object and rendering the page.
+//
+// @param todo - Todo object
 function renderTodo(todo) {
 
     const list = document.querySelector('.js-todo-list');
@@ -71,6 +74,7 @@ function toggleDone(key) {
     renderTodo(todoItems[index]);
 }
 
+//
 function deleteTodo(key) {
     const index = todoItems.findIndex(item => item.id === Number(key));
 
@@ -79,7 +83,8 @@ function deleteTodo(key) {
     console.log(todoItems);
 }
 
-
+// This function gets to-do id, changes its deleted value to false and restore to true,
+// and rendering the new list.
 function restoreTodo(key) {
     const index = todoItems.findIndex(item => item.id === Number(key));
 
@@ -88,7 +93,7 @@ function restoreTodo(key) {
     renderTodo(todoItems[index]);
 }
 
-
+// This function gets to-do id and rendering an edit form for the selected to-do item
 function editTodo(key) {
     const index = todoItems.findIndex(item => item.id === Number(key));
     const editspan = document.querySelector("#span" + key);
@@ -98,12 +103,12 @@ function editTodo(key) {
     </form>    `;
 }
 
-
+// This function renders the count of deleted items at the Bin.
 function updatebin() {
-    const bincount = document.querySelector('.bincount');
-    const binlist = document.querySelector('.js-bin-list');
+    const binlist = document.querySelector('.bincount');
+    let bincount = todoItems.filter(todoItem => todoItem.deleted).length;
 
-    bincount.innerText = binlist.childElementCount;
+    binlist.innerText = bincount;
 }
 
 function myFunction(index) {

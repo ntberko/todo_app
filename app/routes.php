@@ -16,24 +16,38 @@ return function (App $app) {
         return $response;
     });
 
+    $app->get('/get/{note}', function (Request $request, Response $response, array $args) {
+        $note = $args['note'];
+        $return = db_get_note($note);
+        $response->getBody()->write($return);
+        return $response;
+    });
+
+    $app->get('/getall', function (Request $request, Response $response, array $args) {
+        $return = db_get_all_notes();
+        $response->getBody()->write($return);
+        return $response;
+    });
+
+
     $app->get('/create/{note}', function (Request $request, Response $response, array $args) {
         $note = $args['note'];
         db_create_note($note);
-        $response->getBody()->write('Hello world!'. $note);
+        $response->getBody()->write('New ToDo withe ID '. $note.' Created');
         return $response;
     });
 
-    $app->get('/delete/{note}', function (Request $request, Response $response, array $args) {
-        $note = $args['note'];
-        db_delete_note($note);
-        $response->getBody()->write('Hello world!'. $note);
+    $app->get('/delete/{noteid}', function (Request $request, Response $response, array $args) {
+        $noteid = $args['noteid'];
+        db_delete_note($noteid);
+        $response->getBody()->write('ToDo '. $noteid. ' was Deleted');
         return $response;
     });
 
-    $app->get('/checked/{note}', function (Request $request, Response $response, array $args) {
-        $note = $args['note'];
-        db_checked_note($note);
-        $response->getBody()->write('Hello world!'. $note);
+    $app->get('/checked/{noteid}', function (Request $request, Response $response, array $args) {
+        $noteid = $args['noteid'];
+        db_checked_note($noteid);
+        $response->getBody()->write('Hello world!'. $noteid);
         return $response;
     });
 
@@ -42,7 +56,7 @@ return function (App $app) {
         $noteid = $args['noteid'];
         $text = $args['text'];
         db_update_note($noteid, $text);
-        $response->getBody()->write('Hello world!'. $note);
+        $response->getBody()->write('Hello world!'. $noteid);
         return $response;
     });
 
